@@ -1,0 +1,17 @@
+*.pro.user*
+Makefile
+Makefile.Debug
+Makefile.Release
+/build
+/release
+/debug
+/settings
+*object_script*
+*~
+*.*~
+*.dll
+*.a
+*.o
+*.d
+*.zip
+
