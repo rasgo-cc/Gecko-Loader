@@ -1,23 +1,4 @@
 /*
- * QkThings LICENSE
- * The open source framework and modular platform for smart devices.
- * Copyright (C) 2014 <http://qkthings.com>
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
  * XMODEM-CRC implementation according to:
  * http://web.mit.edu/6.115/www/miscfiles/amulet/amulet-help/xmodem.htm
  */
@@ -64,8 +45,8 @@ bool XMODEM::sendFile(const QString &filePath)
         for(int i = bytesRead; i < 128; i++)
             dataBuffer[i] = 0xFF; // pad buffer with 0xFF
 
-        qDebug() << "packet:" << m_packetNumber << "bytes transfered:" << QString().sprintf("%10d / %10d", totalBytesRead, file.size());
-        emit output(QString().sprintf("[%6d / %6d]", totalBytesRead, file.size()));
+        qDebug() << "packet:" << m_packetNumber << "bytes transfered:" << QString().sprintf("%10lu / %10lu", totalBytesRead, file.size());
+        emit output(QString().sprintf("[%6lu / %6lu]", totalBytesRead, file.size()));
 
         sendPacket(dataBuffer, 128);
         waitACK(1000);

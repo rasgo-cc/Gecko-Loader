@@ -1,22 +1,3 @@
-/*
- * QkThings LICENSE
- * The open source framework and modular platform for smart devices.
- * Copyright (C) 2014 <http://qkthings.com>
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #ifdef EFM32_LOADER_GUI
 
 #include "mainwindow.h"
@@ -24,11 +5,14 @@
 
 #include "efm32loader.h"
 #include "helpdialog.h"
+#include <QDebug>
 #include <QSerialPortInfo>
 #include <QFileDialog>
 #include <QSettings>
 #include <QSerialPort>
 #include <QMessageBox>
+#include <QTextStream>
+#include <QRegularExpression>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -56,7 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->lineASCII, SIGNAL(returnPressed()), this, SLOT(slotSendASCII()));
 
-    setWindowTitle("EFM32 Loader");
     updateInterface();
 }
 
@@ -74,7 +57,20 @@ void MainWindow::readSettings()
 
 void MainWindow::log(const QString &text)
 {
-    ui->textLog->appendPlainText(text);
+    QString output = text;
+    if(output.contains(QRegularExpression("\\d+\\s+\\/\\s+\\d+")))
+    {
+        output = output.remove('[');
+        output = output.remove(']');
+        output = output.remove(' ');
+        QStringList sl = output.split('/');
+        int progress = (int)(sl[0].toFloat() / sl[1].toFloat() * 100.0);
+        ui->progressBar->setValue(progress);
+    }
+    else
+    {
+        ui->textLog->appendPlainText(text);
+    }
 }
 
 void MainWindow::slotHelp()
@@ -146,7 +142,9 @@ void MainWindow::slotSendASCII()
 void MainWindow::slotDataReady()
 {
     while(serialPort->bytesAvailable() > 0)
+    {
         ui->textLog->appendPlainText(serialPort->readAll());
+    }
 }
 
 void MainWindow::updateInterface()
