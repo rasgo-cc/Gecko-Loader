@@ -29,10 +29,17 @@ class EFM32Loader : public QObject
 {
     Q_OBJECT
 public:
+    enum Transport
+    {
+        TransportUART,
+        TransportUSB
+    };
+
     explicit EFM32Loader(QObject *parent = 0);
 
-    QSerialPort *serialPort() { return m_serialPort; }
+    QSerialPort *serialPort() { return _serialPort; }
     void setBootEnablePolarity(bool high);
+    void setTransport(Transport transport);
 
 signals:
     void output(QString);
@@ -40,13 +47,13 @@ signals:
 public slots:
     bool open(const QString &portName);
     void close();
-    bool detect();
     bool upload(const QString &filePath);
 
 private:
-    QSerialPort *m_serialPort;
-    XMODEM *m_xmodem;
+    QSerialPort *_serialPort;
+    XMODEM *_xmodem;
     bool _bootEnablePolarity;
+    Transport _transport;
 
     bool waitForChipID();
     bool waitForReady();
@@ -54,6 +61,7 @@ private:
 
     void enterBoot();
     void exitBoot();
+    bool detect();
     void reset();
 };
 

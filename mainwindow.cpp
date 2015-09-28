@@ -34,9 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->buttonHelp, SIGNAL(clicked()), this, SLOT(slotHelp()));
     connect(ui->buttonReload, SIGNAL(clicked()), this, SLOT(slotReloadSerialPorts()));
     connect(ui->buttonBrowse, SIGNAL(clicked()), this, SLOT(slotBrowse()));
-    connect(ui->buttonDetect, SIGNAL(clicked()), this, SLOT(slotDetect()));
     connect(ui->buttonUpload, SIGNAL(clicked()), this, SLOT(slotUpload()));
     connect(ui->buttonConnect, SIGNAL(clicked()), this, SLOT(slotConnect()));
+    connect(ui->comboTransport, SIGNAL(currentIndexChanged(int)), this, SLOT(slotTransport()));
 
     connect(ui->lineASCII, SIGNAL(returnPressed()), this, SLOT(slotSendASCII()));
 
@@ -115,11 +115,14 @@ void MainWindow::slotConnect()
     updateInterface();
 }
 
-void MainWindow::slotDetect()
+void MainWindow::slotTransport()
 {
-    disconnect(serialPort, SIGNAL(readyRead()), this, SLOT(slotDataReady()));
-    loader->detect();
-    connect(serialPort, SIGNAL(readyRead()), this, SLOT(slotDataReady()));
+    bool transportIsUart = ui->comboTransport->currentText() == "UART";
+    if(transportIsUart)
+        loader->setTransport(EFM32Loader::TransportUART);
+    else
+        loader->setTransport(EFM32Loader::TransportUSB);
+    updateInterface();
 }
 
 void MainWindow::slotUpload()
@@ -150,7 +153,6 @@ void MainWindow::slotDataReady()
 void MainWindow::updateInterface()
 {
     ui->buttonConnect->setDisabled(ui->comboPort->count() == 0);
-    ui->buttonDetect->setEnabled(m_connected);
     ui->buttonUpload->setEnabled(m_connected);
 
     if(m_connected)
@@ -159,6 +161,10 @@ void MainWindow::updateInterface()
         ui->buttonConnect->setText(tr("Connect"));
 
     ui->comboPort->setEnabled(!m_connected);
+
+    bool transportIsUart = ui->comboTransport->currentText() == "UART";
+    ui->labelBootEn->setVisible(transportIsUart);
+    ui->comboBootEnPol->setVisible(transportIsUart);
 }
 
 #endif //EFM32_LOADER_GUI

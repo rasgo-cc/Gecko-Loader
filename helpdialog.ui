@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>351</width>
-    <height>178</height>
+    <width>417</width>
+    <height>217</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Connections:</string>
+      <string>UART Connections:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -68,10 +68,10 @@
    <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;efm32_loader call also be used as a command-line application. Usage:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;efm32_loader may also be used as a command-line application.&lt;br/&gt;Usage depends on chosen transport type.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
@@ -83,10 +83,10 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;efm32_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; &amp;lt;boot_pol&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;UART:&lt;/span&gt; efm32_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; uart &amp;lt;boot_pol&amp;gt;&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;USB:&lt;/span&gt;  efm32_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; usb&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>

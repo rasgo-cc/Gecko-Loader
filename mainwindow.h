@@ -42,9 +42,9 @@ private slots:
     void slotHelp();
     void slotReloadSerialPorts();
     void slotBrowse();
-    void slotDetect();
     void slotUpload();
     void slotConnect();
+    void slotTransport();
     void slotSendASCII();
     void slotDataReady();
     void log(const QString &text);
