@@ -29,6 +29,7 @@ class CLHandler : public QObject
 public:
     QString portName;
     QString filePath;
+    QString transport;
     QString bootPol;
 
 public slots:

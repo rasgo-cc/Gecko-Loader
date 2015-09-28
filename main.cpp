@@ -18,6 +18,14 @@
 
 extern QTextStream cout;
 
+void print_usage()
+{
+    cout << "Usage\n";
+    cout << "UART: efm32_loader <port_name> <file_path> uart <boot_pol>\n";
+    cout << "USB:  efm32_loader <port_name> <file_path> usb\n";
+    cout.flush();
+}
+
 int main(int argc, char *argv[])
 {
 #ifdef EFM32_LOADER_GUI
@@ -29,7 +37,7 @@ int main(int argc, char *argv[])
 #endif
 
     a.setOrganizationDomain("settings");
-    a.setApplicationName("efm32 Loader");
+    a.setApplicationName("EFM32 Loader");
 
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, a.applicationDirPath());
     QSettings::setDefaultFormat(QSettings::IniFormat);
@@ -49,24 +57,32 @@ int main(int argc, char *argv[])
 
     cout << "efm32_loader CLI\n";
 
-    if(argc != 4)
+    if(argc != 4 && argc != 5)
     {
         cout << "Wrong number of arguments.\n";
-        cout << "Usage: efm32_loader <port_name> <file_path> <boot_pol>\n";
-        cout.flush();
+        print_usage();
         exit(EXIT_FAILURE);
     }
 
     handler.portName = QString(argv[1]);
     handler.filePath = QString(argv[2]);
-    handler.bootPol = QString(argv[3]);
-
-    if(handler.bootPol != "0" && handler.bootPol != "1")
+    handler.transport = QString(argv[3]).toLower();
+    if(handler.transport == "uart")
     {
-        cout << "ERROR: <boot_pol> must be 0 or 1\n";
-        cout << "Usage: efm32_loader <port_name> <file_path> <boot_pol>\n";
-        cout.flush();
-        exit(EXIT_FAILURE);
+        if(argc != 5)
+        {
+            cout << "Wrong number of arguments.\n";
+            print_usage();
+            exit(EXIT_FAILURE);
+        }
+        handler.bootPol = QString(argv[4]);
+
+        if(handler.bootPol != "0" && handler.bootPol != "1")
+        {
+            cout << "ERROR: <boot_pol> must be 0 or 1\n";
+            print_usage();
+            exit(EXIT_FAILURE);
+        }
     }
 
     QObject::connect(&handler, SIGNAL(done()), &a, SLOT(quit()));
