@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>EFM32 loader by cidadao</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>EFM32 loader</h1>
+        <p>CLI and GUI utility for EFM32&#39;s bootloader</p>
+
+        <p class="view"><a href="https://github.com/cidadao/efm32_loader">View the Project on GitHub <small>cidadao/efm32_loader</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/cidadao/efm32_loader/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/cidadao/efm32_loader/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/cidadao/efm32_loader">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p></p><img src="https://github.com/cidadao/efm32_loader/raw/master/efm32_loader_winscr.png" alt="">
+
+<h3>
+<a id="cli-mode-usage" class="anchor" href="#cli-mode-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>CLI mode usage</h3>
+
+<pre><code>UART: efm32_loader.exe &lt;port_name&gt; &lt;bin_file&gt; uart &lt;boot_pol&gt;
+USB:  efm32_loader.exe &lt;port_name&gt; &lt;bin_file&gt; usb
+</code></pre>
+
+<h3>
+<a id="gui-mode" class="anchor" href="#gui-mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>GUI mode</h3>
+
+<p>Don't pass any arguments and the GUI will show up.</p>
+
+<h3>
+<a id="hardware-connections-uart-bootloader" class="anchor" href="#hardware-connections-uart-bootloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware connections (UART bootloader):</h3>
+
+<pre><code>TX  -- BOOT_RX (E11)
+RX  -- BOOT_TX (E10)
+DTR -- BOOT_EN (DBG_SWCLK)
+RTS -- RESET
+</code></pre>
+
+<h3>
+<a id="other-considerations" class="anchor" href="#other-considerations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Other considerations:</h3>
+
+<p>In order to prevent the bootloader from being overwritten, the linkerscript must be modified as described on application note AN0003</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/cidadao">cidadao</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
