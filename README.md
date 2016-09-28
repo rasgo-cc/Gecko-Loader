@@ -5,7 +5,7 @@ CLI and GUI utility to upload code to EFM32 microcontrollers (Silicon Labs) thro
 
 A blog post about it: http://theramblingness.com/2015/07/16/a-gui-and-cli-utility-for-efm32s-uart-bootloader/
 
-<img src="https://github.com/cidadao/Gecko-Loader/raw/master/img/win_scr.png" width="457" height="358">
+<img src="https://github.com/cidadao/Gecko-Loader/raw/master/img/win_scr.png">
 
 #### CLI mode usage
 ```
