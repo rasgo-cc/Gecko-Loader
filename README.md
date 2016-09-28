@@ -6,7 +6,7 @@ A blog post about it: http://theramblingness.com/2015/07/16/a-gui-and-cli-utilit
 
 ### CLI mode usage
 ```
-efm32_loader.exe <port_name> <bin_file> <boot_pol>
+gecko_loader.exe <port_name> <bin_file> <boot_pol>
 ```
 
 ### GUI mode
