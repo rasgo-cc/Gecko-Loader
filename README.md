@@ -1,4 +1,4 @@
-# efm32 loader - a GUI and CLI utility for EFM32's bootloader
+# Gecko Loader - a GUI and CLI utility to upload code to EFM32 microcontrollers
 
 ![](https://github.com/cidadao/Gecko-Loader/raw/master/img/win_scr.png)
 
