@@ -1,4 +1,5 @@
-# Gecko Loader - a GUI and CLI utility to upload code to EFM32 microcontrollers
+# Gecko Loader
+#### CLI and GUI utility to upload code to EFM32 microcontrollers though the UART or USB bootloader 
 
 ![](https://github.com/cidadao/Gecko-Loader/raw/master/img/win_scr.png)
 
