@@ -1,21 +1,23 @@
-# Gecko Loader
-#### CLI and GUI utility to upload code to EFM32 microcontrollers though the UART or USB bootloader 
 
-![](https://github.com/cidadao/Gecko-Loader/raw/master/img/win_scr.png)
+
+## Gecko Loader
+CLI and GUI utility to upload code to EFM32 microcontrollers (Silicon Labs) through the UART or USB bootloader.
 
 A blog post about it: http://theramblingness.com/2015/07/16/a-gui-and-cli-utility-for-efm32s-uart-bootloader/
 
-### CLI mode usage
+![](https://github.com/cidadao/Gecko-Loader/raw/master/img/win_scr.png)
+
+#### CLI mode usage
 ```
 gecko_loader.exe <port_name> <bin_file> <boot_pol>
 ```
 
-### GUI mode
+#### GUI mode
 ```
 Don't pass any arguments and the GUI will show up.
 ```
 
-###Hardware connections:
+#### Hardware connections:
 ```
 TX  -- BOOT_RX (E11)
 RX  -- BOOT_TX (E10)
@@ -24,4 +26,4 @@ RTS -- RESET
 ```
 
 ### Other considerations:
-In order to prevent the bootloader from being overwritten, the linkerscript must be modified as described on application note AN0003
+In order to prevent the bootloader from being overwritten, the **linker script must be modified** as described on application note AN0003
