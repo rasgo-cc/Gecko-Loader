@@ -1,6 +1,6 @@
 # efm32 loader - a GUI and CLI utility for EFM32's bootloader
 
-![](https://github.com/cidadao/efm32_loader/blob/master/efm32_loader_winscr.png)
+![](https://github.com/cidadao/Gecko-Loader/blob/master/img/winscr.png)
 
 A blog post about it: http://theramblingness.com/2015/07/16/a-gui-and-cli-utility-for-efm32s-uart-bootloader/
 
