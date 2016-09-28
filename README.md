@@ -9,7 +9,8 @@ A blog post about it: http://theramblingness.com/2015/07/16/a-gui-and-cli-utilit
 
 #### CLI mode usage
 ```
-gecko_loader.exe <port_name> <bin_file> <boot_pol>
+UART: gecko_loader.exe <port_name> <bin_file> uart <boot_pol>
+USB:  gecko_loader.exe <port_name> <bin_file> usb
 ```
 
 #### GUI mode
