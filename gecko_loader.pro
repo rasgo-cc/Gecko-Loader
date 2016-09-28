@@ -11,7 +11,7 @@ CONFIG += console
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += serialport widgets
 
-TARGET = efm32_loader
+TARGET = gecko_loader
 TEMPLATE = app
 
 DEFINES += QT_NO_DEBUG_OUTPUT
@@ -19,16 +19,16 @@ DEFINES += EFM32_LOADER_GUI
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    efm32loader.cpp \
     xmodem.cpp \
     clhandler.cpp \
-    helpdialog.cpp
+    helpdialog.cpp \
+    geckoloader.cpp
 
 HEADERS  += mainwindow.h \
-    efm32loader.h \
     xmodem.h \
     clhandler.h \
-    helpdialog.h
+    helpdialog.h \
+    geckoloader.h
 
 FORMS    += mainwindow.ui \
     helpdialog.ui

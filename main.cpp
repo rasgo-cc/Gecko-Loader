@@ -21,8 +21,8 @@ extern QTextStream cout;
 void print_usage()
 {
     cout << "Usage\n";
-    cout << "UART: efm32_loader <port_name> <file_path> uart <boot_pol>\n";
-    cout << "USB:  efm32_loader <port_name> <file_path> usb\n";
+    cout << "UART: gecko_loader <port_name> <file_path> uart <boot_pol>\n";
+    cout << "USB:  gecko_loader <port_name> <file_path> usb\n";
     cout.flush();
 }
 
@@ -32,12 +32,17 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QStyle *style = QStyleFactory::create("Fusion");
     a.setStyle(style);
+    QPalette darkPalette;
+
+    darkPalette.setColor(QPalette::Highlight, QColor("#5aa02c"));
+    darkPalette.setColor(QPalette::HighlightedText, QColor("#eee"));
+    qApp->setPalette(darkPalette);
 #else
     QCoreApplication a(argc, argv);
 #endif
 
     a.setOrganizationDomain("settings");
-    a.setApplicationName("EFM32 Loader");
+    a.setApplicationName("Gecko Loader");
 
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, a.applicationDirPath());
     QSettings::setDefaultFormat(QSettings::IniFormat);
@@ -48,14 +53,12 @@ int main(int argc, char *argv[])
     MainWindow w;
     if(argc == 1)
     {
-        //cout << "efm33_loader GUI\n";
-        //cout.flush();
         w.show();
     }
     else {
 #endif
 
-    cout << "efm32_loader CLI\n";
+    cout << "Gecko Loader CLI\n";
 
     if(argc != 4 && argc != 5)
     {

@@ -25,7 +25,7 @@
 class QSerialPort;
 class XMODEM;
 
-class EFM32Loader : public QObject
+class GeckoLoader : public QObject
 {
     Q_OBJECT
 public:
@@ -35,7 +35,7 @@ public:
         TransportUSB
     };
 
-    explicit EFM32Loader(QObject *parent = 0);
+    explicit GeckoLoader(QObject *parent = 0);
 
     QSerialPort *serialPort() { return _serialPort; }
     void setBootEnablePolarity(bool high);

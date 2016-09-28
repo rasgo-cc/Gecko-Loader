@@ -1,4 +1,4 @@
-#include "efm32loader.h"
+#include "geckoloader.h"
 #include "xmodem.h"
 
 #include <QDebug>
@@ -8,7 +8,7 @@
 #include <QFile>
 #include <QElapsedTimer>
 
-EFM32Loader::EFM32Loader(QObject *parent) :
+GeckoLoader::GeckoLoader(QObject *parent) :
     QObject(parent)
 {
     _serialPort = new QSerialPort(this);
@@ -18,17 +18,17 @@ EFM32Loader::EFM32Loader(QObject *parent) :
     connect(_xmodem, SIGNAL(output(QString)), this, SIGNAL(output(QString)));
 }
 
-void EFM32Loader::setBootEnablePolarity(bool high)
+void GeckoLoader::setBootEnablePolarity(bool high)
 {
     _bootEnablePolarity = high;
 }
 
-void EFM32Loader::setTransport(Transport transport)
+void GeckoLoader::setTransport(Transport transport)
 {
     _transport = transport;
 }
 
-bool EFM32Loader::open(const QString &portName)
+bool GeckoLoader::open(const QString &portName)
 {
     QSerialPort *sp = _serialPort;
 
@@ -61,13 +61,13 @@ bool EFM32Loader::open(const QString &portName)
     return true;
 }
 
-void EFM32Loader::close()
+void GeckoLoader::close()
 {
     emit output(tr("Disconnected"));
     _serialPort->close();
 }
 
-bool EFM32Loader::detect()
+bool GeckoLoader::detect()
 {
     char byteBuf;
     bool detected;
@@ -100,7 +100,7 @@ bool EFM32Loader::detect()
     return detected;
 }
 
-bool EFM32Loader::upload(const QString &filePath)
+bool GeckoLoader::upload(const QString &filePath)
 {
     QFile file(filePath);
     if(!file.open(QFile::ReadOnly))
@@ -117,27 +117,6 @@ bool EFM32Loader::upload(const QString &filePath)
     enterBoot();
 
     elapsedTimer.start();
-
-    // Autobaud sync
-    /*byteBuf = 'U';
-    int tries = 3;
-    QEventLoop eventLoop;
-    QTimer timer;
-    timer.setInterval(5);
-    timer.setSingleShot(false);
-    connect(&timer, SIGNAL(timeout()), &eventLoop, SLOT(quit()));
-    timer.start();
-    while(tries--)
-    {
-        _serialPort->write(&byteBuf, 1);
-        eventLoop.exec();
-    }
-
-    if(!waitForChipID())
-    {
-        exitBoot();
-        return false;
-    }*/
 
     if(!detect())
     {
@@ -161,7 +140,7 @@ bool EFM32Loader::upload(const QString &filePath)
     return success;
 }
 
-void EFM32Loader::enterBoot()
+void GeckoLoader::enterBoot()
 {
     // RTS - RSTN
     // DTR - DBG
@@ -181,7 +160,7 @@ void EFM32Loader::enterBoot()
     reset();
 }
 
-void EFM32Loader::exitBoot()
+void GeckoLoader::exitBoot()
 {
     QEventLoop eventLoop;
     QTimer timer;
@@ -197,7 +176,7 @@ void EFM32Loader::exitBoot()
     reset();
 }
 
-void EFM32Loader::reset()
+void GeckoLoader::reset()
 {
     QEventLoop eventLoop;
     QTimer timer;
@@ -212,7 +191,7 @@ void EFM32Loader::reset()
     eventLoop.exec();
 }
 
-bool EFM32Loader::waitForChipID()
+bool GeckoLoader::waitForChipID()
 {
     emit output("Waiting for chip ID");
     while(1)
@@ -234,7 +213,7 @@ bool EFM32Loader::waitForChipID()
     }
 }
 
-bool EFM32Loader::waitForReady()
+bool GeckoLoader::waitForReady()
 {
     while(1)
     {
@@ -255,7 +234,7 @@ bool EFM32Loader::waitForReady()
     }
 }
 
-bool EFM32Loader::waitForData(int timeout)
+bool GeckoLoader::waitForData(int timeout)
 {
     QEventLoop eventLoop;
     QTimer timer;

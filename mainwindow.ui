@@ -11,17 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>efm32 loader</string>
+   <string>Gecko Loader</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/img/gecko_256.png</normaloff>:/img/gecko_256.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QPushButton" name="buttonHelp">
-      <property name="text">
-       <string>Help</string>
-      </property>
-     </widget>
-    </item>
     <item>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
@@ -167,6 +164,22 @@
      <widget class="QPlainTextEdit" name="textLog"/>
     </item>
     <item>
+     <widget class="QToolButton" name="buttonHelp">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Usage</string>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonIconOnly</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLineEdit" name="lineASCII"/>
     </item>
    </layout>
@@ -174,11 +187,12 @@
    <zorder>lineASCII</zorder>
    <zorder>progressBar</zorder>
    <zorder>buttonUpload</zorder>
-   <zorder>comboBootEnPol</zorder>
    <zorder>buttonHelp</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

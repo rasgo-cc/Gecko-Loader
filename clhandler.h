@@ -21,7 +21,7 @@
 #define CLHANDLER_H
 
 #include <QObject>
-#include "efm32loader.h"
+#include "geckoloader.h"
 
 class CLHandler : public QObject
 {
@@ -42,7 +42,7 @@ signals:
     void done();
 
 private:
-    EFM32Loader loader;
+    GeckoLoader loader;
 
 };
 

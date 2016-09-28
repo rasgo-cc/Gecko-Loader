@@ -27,7 +27,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class EFM32Loader;
+class GeckoLoader;
 class QSerialPort;
 
 class MainWindow : public QMainWindow
@@ -53,7 +53,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    EFM32Loader *loader;
+    GeckoLoader *loader;
     QSerialPort *serialPort;
     bool m_connected;
 

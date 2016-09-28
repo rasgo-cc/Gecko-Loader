@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "efm32loader.h"
+#include "geckoloader.h"
 #include "helpdialog.h"
 #include <QDebug>
 #include <QSerialPortInfo>
@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineASCII->hide();
     ui->textLog->setFont(QFont("Courier New", 9));
 
-    loader = new EFM32Loader(this);
+    loader = new GeckoLoader(this);
     serialPort = loader->serialPort();
     m_connected = false;
 
@@ -119,9 +119,9 @@ void MainWindow::slotTransport()
 {
     bool transportIsUart = ui->comboTransport->currentText() == "UART";
     if(transportIsUart)
-        loader->setTransport(EFM32Loader::TransportUART);
+        loader->setTransport(GeckoLoader::TransportUART);
     else
-        loader->setTransport(EFM32Loader::TransportUSB);
+        loader->setTransport(GeckoLoader::TransportUSB);
     updateInterface();
 }
 

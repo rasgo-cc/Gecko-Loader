@@ -1,6 +1,6 @@
 <RCC>
-    <qresource prefix="/img">
-        <file>efm32_loader_logo.png</file>
-        <file>efm32_loader_pinout.png</file>
+    <qresource prefix="/">
+        <file>img/gecko_256.png</file>
+        <file>img/logo_full_128.png</file>
     </qresource>
 </RCC>
