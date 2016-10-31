@@ -75,7 +75,7 @@ bool GeckoLoader::detect()
     if(_transport == TransportUART)
     {
         byteBuf = 'U';
-        int tries = 3;
+        int tries = 10;
         QEventLoop eventLoop;
         QTimer timer;
         timer.setInterval(10);

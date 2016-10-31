@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>555</width>
-    <height>230</height>
+    <height>217</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,7 +109,7 @@
         </font>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;UART:&lt;/span&gt; efm32_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; uart &amp;lt;boot_pol&amp;gt;&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;USB:  &lt;/span&gt;efm32_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; usb&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;UART:&lt;/span&gt; gecko_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; uart &amp;lt;boot_pol&amp;gt;&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;USB: gecko&lt;/span&gt;_loader &amp;lt;port_name&amp;gt; &amp;lt;bin_file&amp;gt; usb&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -119,7 +119,7 @@
      <item>
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bugs? Feature requests? &lt;br/&gt;&lt;a href=&quot;https://github.com/cidadao/efm32_loader&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github.com/cidadao/Gecko-Loader&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bugs? Feature requests? &lt;a href=&quot;https://github.com/cidadao/efm32_loader&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github.com/cidadao/Gecko-Loader&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>

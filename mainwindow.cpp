@@ -13,13 +13,14 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QRegularExpression>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->lineASCII->hide();
+    //ui->lineASCII->hide();
     ui->textLog->setFont(QFont("Courier New", 9));
 
     loader = new GeckoLoader(this);
@@ -127,6 +128,7 @@ void MainWindow::slotTransport()
 
 void MainWindow::slotUpload()
 {
+    ui->textLog->clear();
     disconnect(serialPort, SIGNAL(readyRead()), this, SLOT(slotDataReady()));
     if(ui->comboBootEnPol->currentText() == "HIGH")
         loader->setBootEnablePolarity(true);
@@ -146,7 +148,19 @@ void MainWindow::slotDataReady()
 {
     while(serialPort->bytesAvailable() > 0)
     {
-        ui->textLog->appendPlainText(serialPort->readAll());
+        QByteArray line = serialPort->readLine();
+        if(!line.isEmpty())
+        {
+            ui->textLog->insertPlainText(line);
+            QScrollBar *sb = ui->textLog->verticalScrollBar();
+            sb->setValue(sb->maximum());
+//            QString lineStr = QString(line);
+//            lineStr = lineStr.remove('\n');
+//            lineStr = lineStr.remove('\r');
+//            ui->textLog->appendPlainText(lineStr);
+//            ui->textLog->scr
+        }
+        //ui->textLog->appendPlainText(serialPort->readAll());
     }
 }
 
