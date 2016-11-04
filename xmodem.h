@@ -37,6 +37,10 @@ public slots:
     bool sendFile(const QString &filePath);
 
 
+private slots:
+    void _readyRead();
+
+
 private:
     enum
     {
@@ -53,7 +57,9 @@ private:
 
     void sendPacket(char *data, int count);
     int calculateCRC(char *ptr, int count);
-    int waitACK(int timeout);
+    bool waitACK(int timeout);
+
+    QByteArray _lastPacketSent;
 
     int m_packetNumber;
 

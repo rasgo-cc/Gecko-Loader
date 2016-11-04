@@ -14,6 +14,7 @@
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QScrollBar>
+#include <QVariant>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -25,13 +26,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     loader = new GeckoLoader(this);
     serialPort = loader->serialPort();
-    m_connected = false;
+    bleDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    _connected = false;
 
     readSettings();
     slotReloadSerialPorts();
 
     connect(loader, SIGNAL(output(QString)), this, SLOT(log(QString)));
     connect(serialPort, SIGNAL(readyRead()), this, SLOT(slotDataReady()));
+    connect(ui->buttonScanBLE, SIGNAL(clicked(bool)), this, SLOT(slotScanBLE()));
+    connect(ui->buttonConnectBLE, SIGNAL(clicked(bool)), this, SLOT(slotConnectBLE()));
     connect(ui->buttonHelp, SIGNAL(clicked()), this, SLOT(slotHelp()));
     connect(ui->buttonReload, SIGNAL(clicked()), this, SLOT(slotReloadSerialPorts()));
     connect(ui->buttonBrowse, SIGNAL(clicked()), this, SLOT(slotBrowse()));
@@ -40,6 +44,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->comboTransport, SIGNAL(currentIndexChanged(int)), this, SLOT(slotTransport()));
 
     connect(ui->lineASCII, SIGNAL(returnPressed()), this, SLOT(slotSendASCII()));
+
+    connect(bleDiscoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+            this, SLOT(slotDeviceDiscovered(QBluetoothDeviceInfo)));
+    connect(bleDiscoveryAgent, SIGNAL(error(QBluetoothDeviceDiscoveryAgent::Error)),
+            this, SLOT(slotDeviceScanError(QBluetoothDeviceDiscoveryAgent::Error)));
+    connect(bleDiscoveryAgent, SIGNAL(finished()),
+            this, SLOT(slotDeviceScanFinished()));
 
     updateInterface();
 }
@@ -104,26 +115,65 @@ void MainWindow::slotBrowse()
 
 void MainWindow::slotConnect()
 {
-    if(!m_connected)
+    if(!_connected)
     {
-        m_connected = loader->open(ui->comboPort->currentText());
+        _connected = loader->open(ui->comboPort->currentText());
     }
     else
     {
         loader->close();
-        m_connected = false;
+        _connected = false;
     }
     updateInterface();
 }
 
 void MainWindow::slotTransport()
 {
-    bool transportIsUart = ui->comboTransport->currentText() == "UART";
-    if(transportIsUart)
+    QString curTransportStr = ui->comboTransport->currentText().toLower();
+    if(curTransportStr == "uart")
         loader->setTransport(GeckoLoader::TransportUART);
-    else
+    else if(curTransportStr == "usb")
         loader->setTransport(GeckoLoader::TransportUSB);
+    else if(curTransportStr == "ble")
+        loader->setTransport(GeckoLoader::TransportBLE);
+
     updateInterface();
+}
+
+
+void MainWindow::slotScanBLE()
+{
+    log("BLE scanning...");
+    ui->comboBLEDevices->clear();
+    bleDiscoveryAgent->start();
+}
+
+void MainWindow::slotConnectBLE()
+{
+    QString name = ui->comboBLEDevices->currentText();
+    QString addr = ui->comboBLEDevices->currentData().toString();
+    loader->connectBle(addr);
+}
+
+void MainWindow::slotTestBLE()
+{
+
+}
+
+void MainWindow::slotDeviceDiscovered(QBluetoothDeviceInfo info)
+{
+    log("BLE device discovered: " + info.name() + " " + info.address().toString());
+    ui->comboBLEDevices->addItem(info.name(), QVariant(info.address().toString()));
+}
+
+void MainWindow::slotDeviceScanError(QBluetoothDeviceDiscoveryAgent::Error err)
+{
+    log("BLE scan error: " + bleDiscoveryAgent->errorString());
+}
+
+void MainWindow::slotDeviceScanFinished()
+{
+    log("BLE scan finished");
 }
 
 void MainWindow::slotUpload()
@@ -167,18 +217,28 @@ void MainWindow::slotDataReady()
 void MainWindow::updateInterface()
 {
     ui->buttonConnect->setDisabled(ui->comboPort->count() == 0);
-    ui->buttonUpload->setEnabled(m_connected);
+    ui->buttonUpload->setEnabled(_connected);
 
-    if(m_connected)
+    if(_connected)
         ui->buttonConnect->setText(tr("Disconnect"));
     else
         ui->buttonConnect->setText(tr("Connect"));
 
-    ui->comboPort->setEnabled(!m_connected);
+    ui->comboPort->setEnabled(!_connected);
 
     bool transportIsUart = ui->comboTransport->currentText() == "UART";
+    bool transportIsBLE = ui->comboTransport->currentText() == "BLE";
     ui->labelBootEn->setVisible(transportIsUart);
     ui->comboBootEnPol->setVisible(transportIsUart);
+    ui->widgetBLE->setVisible(transportIsBLE);
+    if(transportIsBLE)
+    {
+        ui->stackedWidget->setCurrentIndex(1);
+    }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+    }
 }
 
 #endif //EFM32_LOADER_GUI

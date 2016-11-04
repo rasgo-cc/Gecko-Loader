@@ -22,6 +22,7 @@
 
 #ifdef EFM32_LOADER_GUI
 #include <QMainWindow>
+#include <QBluetoothDeviceDiscoveryAgent>
 
 namespace Ui {
 class MainWindow;
@@ -47,6 +48,14 @@ private slots:
     void slotTransport();
     void slotSendASCII();
     void slotDataReady();
+
+    void slotScanBLE();
+    void slotConnectBLE();
+    void slotTestBLE();
+    void slotDeviceDiscovered(QBluetoothDeviceInfo info);
+    void slotDeviceScanError(QBluetoothDeviceDiscoveryAgent::Error err);
+    void slotDeviceScanFinished();
+
     void log(const QString &text);
     void updateInterface();
 
@@ -55,7 +64,8 @@ private:
 
     GeckoLoader *loader;
     QSerialPort *serialPort;
-    bool m_connected;
+    QBluetoothDeviceDiscoveryAgent *bleDiscoveryAgent;
+    bool _connected;
 
     void readSettings();
 };

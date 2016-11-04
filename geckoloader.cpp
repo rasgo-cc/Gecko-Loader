@@ -1,8 +1,9 @@
 #include "geckoloader.h"
 #include "xmodem.h"
 
+
+
 #include <QDebug>
-#include <QSerialPort>
 #include <QEventLoop>
 #include <QTimer>
 #include <QFile>
@@ -11,21 +12,40 @@
 GeckoLoader::GeckoLoader(QObject *parent) :
     QObject(parent)
 {
+#if EFM32LOADER_BLE
+    _bleController = 0;
+    _transport = TransportBLE;
+#endif
+
+#if EFM32LOADER_SERIAL
     _serialPort = new QSerialPort(this);
     _xmodem = new XMODEM(_serialPort, this);
     _bootEnablePolarity = true;
     _transport = TransportUART;
     connect(_xmodem, SIGNAL(output(QString)), this, SIGNAL(output(QString)));
-}
-
-void GeckoLoader::setBootEnablePolarity(bool high)
-{
-    _bootEnablePolarity = high;
+#endif
 }
 
 void GeckoLoader::setTransport(Transport transport)
 {
     _transport = transport;
+}
+
+void GeckoLoader::resetData()
+{
+#if EFM32LOADER_BLE
+    _bleCharChanged     = false;
+    _bleCharWritten     = false;
+    _bleBootDetected    = false;
+    _bleBootReady       = false;
+#endif
+}
+
+#if EFM32LOADER_SERIAL
+
+void GeckoLoader::setBootEnablePolarity(bool high)
+{
+    _bootEnablePolarity = high;
 }
 
 bool GeckoLoader::open(const QString &portName)
@@ -90,11 +110,19 @@ bool GeckoLoader::detect()
         timer.stop();
         detected = waitForChipID();
     }
-    else
+    else if(_transport == TransportUSB)
     {
         byteBuf = 'i';
         _serialPort->write(&byteBuf, 1);
         detected = waitForChipID();
+    }
+    else if(_transport == TransportBLE)
+    {
+
+    }
+    else
+    {
+        qDebug() << "ERROR | Unknown transport type";
     }
 
     return detected;
@@ -254,5 +282,365 @@ bool GeckoLoader::waitForData(int timeout)
         return (_serialPort->bytesAvailable() > 0);
     }
 }
+#endif //EFM32LOADER_SERIAL
 
+#if EFM32LOADER_BLE
 
+void GeckoLoader::setBleController(QLowEnergyController *controller)
+{
+    _bleController = controller;
+    connect(_bleController, SIGNAL(error(QLowEnergyController::Error)),
+            this, SLOT(_slotBleError(QLowEnergyController::Error)));
+}
+
+void GeckoLoader::setBleServiceAndCharacteristic(QLowEnergyService *service, QBluetoothUuid charUuid)
+{
+    _bleService = service;
+    _bleServiceUUID = service->serviceUuid();
+    _bleCharUUID = charUuid;
+
+    connect(_bleService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
+            this, SLOT(_slotBleCharWritten(QLowEnergyCharacteristic,QByteArray)));
+    connect(_bleService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+            this, SLOT(_slotBleCharChanged(QLowEnergyCharacteristic,QByteArray)));
+}
+
+void GeckoLoader::setBleUUIDs(QBluetoothUuid serviceUUID, QBluetoothUuid charUUID)
+{
+    _bleServiceUUID = serviceUUID;
+    _bleCharUUID = charUUID;
+}
+
+void GeckoLoader::connectBle(const QString &addr)
+{
+    emit output("Connecting to BLE device " + addr);
+    if(_bleController != 0)
+        delete _bleController;
+
+    if(_bleServices.count() > 0)
+    {
+        qDeleteAll(_bleServices.begin(), _bleServices.end());
+    }
+
+    _bleController = new QLowEnergyController(QBluetoothAddress(addr));
+
+    connect(_bleController, SIGNAL(connected()),
+            this, SLOT(_slotBleConnected()));
+    connect(_bleController, SIGNAL(error(QLowEnergyController::Error)),
+            this, SLOT(_slotBleError(QLowEnergyController::Error)));
+    connect(_bleController, SIGNAL(disconnected()),
+            this, SLOT(_slotBleDisconnected()));
+    connect(_bleController, SIGNAL(serviceDiscovered(QBluetoothUuid)),
+            this, SLOT(_slotBleServiceDiscovered(QBluetoothUuid)));
+    connect(_bleController, SIGNAL(discoveryFinished()),
+            this, SLOT(_slotBleDiscoveryFinished()));
+
+    _bleController->setRemoteAddressType(QLowEnergyController::RandomAddress);
+    _bleController->connectToDevice();
+}
+
+void GeckoLoader::disconnectBle()
+{
+    if(_bleController == 0)
+        return;
+
+    emit output("Disconnecting from BLE device");
+    _bleController->disconnectFromDevice();
+}
+
+bool GeckoLoader::detectBle()
+{
+    _bleBootDetected = false;
+    _writeChar("d", dataTypeString);
+    _waitCharChanged(3000);
+    if(_bleBootDetected)
+    {
+        emit output("EFM32 bootloader found");
+    }
+    else
+    {
+        emit output("Failed to find EFM32 bootloader");
+    }
+    return _bleBootDetected;
+}
+
+bool GeckoLoader::uploadBle(const QString &filePath)
+{
+    QFile file(filePath);
+
+    if(!file.open(QFile::ReadOnly))
+    {
+        emit output("Failed to open file " + filePath);
+        return false;
+    }
+
+    if(!_bleBegin())
+    {
+        emit output("EFM32 bootloader failed to begin");
+        return false;
+    }
+
+    emit output("Uploading...");
+
+    _bleUploadError = false;
+
+    QEventLoop eventLoop;
+    QElapsedTimer elapsedTimer;
+    elapsedTimer.start();
+
+    char dataBuffer[16];
+    int totalBytesRead = 0;
+
+    while(!file.atEnd() && !_bleUploadError)
+    {
+        int bytesRead = file.read(dataBuffer, 16);
+        totalBytesRead += bytesRead;
+
+        emit output(QString().sprintf("[%6lu / %6lu]", totalBytesRead, file.size()));
+
+        _bleSend(dataBuffer, bytesRead, file.atEnd());
+
+        eventLoop.processEvents();
+    }
+
+    _bleEnd();
+
+    emit output("Done");
+    emit output(QString().sprintf("Elapsed time: %.3f seconds", (double)elapsedTimer.elapsed()/1000.0));
+    emit output(QString("Total bytes sent: %1").arg(totalBytesRead));
+
+    return false;
+}
+
+void GeckoLoader::_slotBleConnected()
+{
+    emit output("Connected to BLE device");
+    emit output("Discovering services...");
+    _bleController->discoverServices();
+}
+
+void GeckoLoader::_slotBleError(QLowEnergyController::Error err)
+{
+    emit output("BLE error: " + _bleController->errorString());
+}
+
+void GeckoLoader::_slotBleDisconnected()
+{
+    emit output("Disconnected from BLE device");
+    if(_bleServices.count() > 0)
+    {
+        qDeleteAll(_bleServices.begin(), _bleServices.end());
+    }
+}
+
+void GeckoLoader::_slotBleServiceDiscovered(QBluetoothUuid uuid)
+{
+    emit output("Service discovered: " + uuid.toString());
+
+    QEventLoop eventLoop;
+    QLowEnergyService *service = _bleController->createServiceObject(uuid);
+    connect(service, SIGNAL(stateChanged(QLowEnergyService::ServiceState)),
+            &eventLoop, SLOT(quit()));
+
+    _bleServices.append(service);
+    service->discoverDetails();
+
+    while(service->state() != QLowEnergyService::ServiceDiscovered)
+    {
+        eventLoop.exec();
+    }
+
+    foreach(QLowEnergyCharacteristic bleChar, service->characteristics())
+    {
+        emit output(" Char: " + bleChar.uuid().toString());
+    }
+
+    delete service;
+}
+
+void GeckoLoader::_slotBleDiscoveryFinished()
+{
+    qDebug() << __FUNCTION__;
+    return;
+}
+
+void GeckoLoader::_slotBleCharWritten(QLowEnergyCharacteristic c, QByteArray data)
+{
+    _bleCharWritten = true;
+}
+
+void GeckoLoader::_slotBleCharChanged(QLowEnergyCharacteristic c, QByteArray data)
+{
+    _bleCharChanged = true;
+    qDebug() << "char changed" << c.uuid().toString() << data.toHex().toUpper();
+
+    QString dataStr(data);
+    if(dataStr == "kd")         _bleBootDetected    = true;
+    else if(dataStr == "kb")    _bleBootReady       = true;
+    else if(dataStr.at(0) == 'e')
+    {
+        _bleUploadError = true;
+        emit output(QString("BLE boot error (%1)").arg(QString(data.toHex()).toUpper()));
+    }
+}
+
+QLowEnergyService *GeckoLoader::_findService(QBluetoothUuid uuid)
+{
+    foreach(QLowEnergyService *s, _bleServices)
+    {
+        if(s->serviceUuid() == uuid)
+            return s;
+    }
+    return 0;
+}
+
+void GeckoLoader::_writeChar(QString data, GeckoLoader::DataType dataType)
+{
+    QString dataToSendStr = data;
+    QByteArray dataToSend;
+
+    switch(dataType)
+    {
+    case dataTypeString: // String
+        dataToSend = dataToSendStr.toUtf8();
+        break;
+    case dataTypeByteArray: // Byte array
+        dataToSend = QByteArray::fromHex(dataToSendStr.toUtf8());
+        break;
+    default:
+        qDebug() << "ERROR | unknown data type";
+    }
+
+    QLowEnergyService *s = _bleService;
+    if(s == 0)
+    {
+        qDebug() << "ERROR | Failed to get service";
+        return;
+    }
+
+    QLowEnergyCharacteristic c = s->characteristic(_bleCharUUID);
+    if(!c.isValid())
+    {
+        qDebug() << "ERROR | Failed to get characteristic";
+        return;
+    }
+
+    _bleCharWritten = false;
+    _bleCharChanged = false;
+    s->writeCharacteristic(c, dataToSend);
+}
+
+void GeckoLoader::_writeChar(QByteArray data)
+{
+    QLowEnergyService *s = _bleService;
+    if(s == 0)
+    {
+        qDebug() << "ERROR | Failed to get service";
+        return;
+    }
+
+    QLowEnergyCharacteristic c = s->characteristic(_bleCharUUID);
+    if(!c.isValid())
+    {
+        qDebug() << "ERROR | Failed to get characteristic";
+        return;
+    }
+
+    _bleCharWritten = false;
+    _bleCharChanged = false;
+    s->writeCharacteristic(c, data);
+}
+
+bool GeckoLoader::_waitCharWritten(int timeout_ms)
+{
+    QLowEnergyService *s = _bleService;
+    if(s == 0)
+    {
+        qDebug() << "ERROR | Failed to get service";
+        return false;
+    }
+
+    QEventLoop eventLoop;
+    QTimer timer;
+
+    connect(s, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
+            &eventLoop, SLOT(quit()));
+    connect(&timer, SIGNAL(timeout()), &eventLoop, SLOT(quit()));
+
+    timer.setSingleShot(true);
+    timer.start(timeout_ms);
+
+    while(timer.isActive() && !_bleCharWritten)
+    {
+        eventLoop.exec();
+    }
+
+    if(!timer.isActive())
+    {
+        emit output("WARNING: Failed to get charWritten in " + QString::number(timeout_ms) + "ms");
+    }
+
+    return timer.isActive();
+}
+
+bool GeckoLoader::_waitCharChanged(int timeout_ms)
+{
+    QLowEnergyService *s = _bleService;
+    if(s == 0)
+    {
+        qDebug() << "ERROR | Failed to get service";
+        return false;
+    }
+
+    QEventLoop eventLoop;
+    QTimer timer;
+
+    connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+            &eventLoop, SLOT(quit()));
+    connect(&timer, SIGNAL(timeout()), &eventLoop, SLOT(quit()));
+
+    timer.setSingleShot(true);
+    timer.start(timeout_ms);
+
+    while(timer.isActive() && !_bleCharChanged)
+    {
+        eventLoop.exec();
+    }
+
+    if(!timer.isActive())
+    {
+        emit output("WARNING: Failed to get charChanged in " + QString::number(timeout_ms) + "ms");
+    }
+
+    return timer.isActive();
+}
+
+bool GeckoLoader::_bleBegin()
+{
+    _bleBootReady = false;
+    _writeChar("b", dataTypeString);
+    _waitCharChanged(3000);
+    return _bleBootReady;
+}
+
+bool GeckoLoader::_bleSend(char *buf, int count, bool flush)
+{
+    QByteArray dataToSend;
+    char send_cmd = flush ? 'f' : 's';
+    dataToSend.append(send_cmd);
+    dataToSend.append(buf, count);
+
+//    qDebug() << QString("BLE SEND (%1bytes): %2")
+//                .arg(count)
+//                .arg(QString(QByteArray(buf, count).toHex()));
+
+    _writeChar(dataToSend);
+    return _waitCharWritten(2000);
+}
+
+void GeckoLoader::_bleEnd()
+{
+    _writeChar("e", dataTypeString);
+    _waitCharWritten(3000);
+}
+#endif // EFM32LOADER_BLE
