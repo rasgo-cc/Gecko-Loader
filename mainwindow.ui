@@ -75,21 +75,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <item>
-           <property name="text">
-            <string>UART</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>USB</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>BLE</string>
-           </property>
-          </item>
          </widget>
         </item>
         <item>
@@ -285,6 +270,12 @@
        </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_5">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>Service UUID</string>
          </property>
@@ -295,6 +286,12 @@
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_6">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>Char UUID</string>
          </property>
@@ -346,7 +343,25 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="lineASCII"/>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="labelASCII">
+        <property name="text">
+         <string>ASCII</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineASCII"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonSendASCII">
+        <property name="text">
+         <string>Send</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
    <zorder>textLog</zorder>
@@ -356,6 +371,7 @@
    <zorder>buttonHelp</zorder>
    <zorder>stackedWidget</zorder>
    <zorder>widgetBLE</zorder>
+   <zorder>labelASCII</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

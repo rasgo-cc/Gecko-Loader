@@ -21,12 +21,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->comboTransport->addItem("UART");
+    ui->comboTransport->addItem("USB");
+#if EFM32LOADER_BLE
+    ui->comboTransport->addItem("BLE");
+#endif
+
     //ui->lineASCII->hide();
     ui->textLog->setFont(QFont("Courier New", 9));
 
     loader = new GeckoLoader(this);
     serialPort = loader->serialPort();
+
+
+#if EFM32LOADER_BLE
     bleDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+#endif
+
     _connected = false;
 
     readSettings();
@@ -34,23 +46,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(loader, SIGNAL(output(QString)), this, SLOT(log(QString)));
     connect(serialPort, SIGNAL(readyRead()), this, SLOT(slotDataReady()));
-    connect(ui->buttonScanBLE, SIGNAL(clicked(bool)), this, SLOT(slotScanBLE()));
-    connect(ui->buttonConnectBLE, SIGNAL(clicked(bool)), this, SLOT(slotConnectBLE()));
     connect(ui->buttonHelp, SIGNAL(clicked()), this, SLOT(slotHelp()));
     connect(ui->buttonReload, SIGNAL(clicked()), this, SLOT(slotReloadSerialPorts()));
     connect(ui->buttonBrowse, SIGNAL(clicked()), this, SLOT(slotBrowse()));
     connect(ui->buttonUpload, SIGNAL(clicked()), this, SLOT(slotUpload()));
     connect(ui->buttonConnect, SIGNAL(clicked()), this, SLOT(slotConnect()));
     connect(ui->comboTransport, SIGNAL(currentIndexChanged(int)), this, SLOT(slotTransport()));
+    connect(ui->buttonSendASCII, SIGNAL(clicked(bool)), this, SLOT(slotSendASCII()));
 
-    connect(ui->lineASCII, SIGNAL(returnPressed()), this, SLOT(slotSendASCII()));
-
+#if EFM32LOADER_BLE
+    connect(ui->buttonScanBLE, SIGNAL(clicked(bool)), this, SLOT(slotScanBLE()));
+    connect(ui->buttonConnectBLE, SIGNAL(clicked(bool)), this, SLOT(slotConnectBLE()));
     connect(bleDiscoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
             this, SLOT(slotDeviceDiscovered(QBluetoothDeviceInfo)));
     connect(bleDiscoveryAgent, SIGNAL(error(QBluetoothDeviceDiscoveryAgent::Error)),
             this, SLOT(slotDeviceScanError(QBluetoothDeviceDiscoveryAgent::Error)));
     connect(bleDiscoveryAgent, SIGNAL(finished()),
             this, SLOT(slotDeviceScanFinished()));
+#endif
+
+    connect(ui->lineASCII, SIGNAL(returnPressed()), this, SLOT(slotSendASCII()));
 
     updateInterface();
 }
@@ -141,6 +156,7 @@ void MainWindow::slotTransport()
 }
 
 
+#if EFM32LOADER_BLE
 void MainWindow::slotScanBLE()
 {
     log("BLE scanning...");
@@ -175,6 +191,7 @@ void MainWindow::slotDeviceScanFinished()
 {
     log("BLE scan finished");
 }
+#endif
 
 void MainWindow::slotUpload()
 {
@@ -191,7 +208,8 @@ void MainWindow::slotUpload()
 void MainWindow::slotSendASCII()
 {
     QString text = ui->lineASCII->text();
-    serialPort->write(text.toLatin1());
+    if(serialPort->isOpen())
+        serialPort->write(text.toLatin1());
 }
 
 void MainWindow::slotDataReady()
@@ -239,6 +257,12 @@ void MainWindow::updateInterface()
     {
         ui->stackedWidget->setCurrentIndex(0);
     }
+
+    ui->labelASCII->setVisible(!transportIsBLE);
+    ui->lineASCII->setVisible(!transportIsBLE);
+    ui->buttonSendASCII->setVisible(!transportIsBLE);
+
+    ui->buttonSendASCII->setEnabled(_connected);
 }
 
 #endif //EFM32_LOADER_GUI

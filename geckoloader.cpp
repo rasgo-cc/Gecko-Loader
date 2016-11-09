@@ -231,8 +231,8 @@ bool GeckoLoader::waitForChipID()
         }
         else
         {
-            QString line = QString(_serialPort->readLine());
-            if(line.contains("ChipID"))
+            QString line = QString(_serialPort->readLine()).toLower();
+            if(line.contains("chip"))
             {
                 emit output(tr("Bootloader detected"));
                 return true;

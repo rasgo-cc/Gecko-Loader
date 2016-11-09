@@ -7,15 +7,15 @@
 QT      += core
 QT      += gui
 
-CONFIG += console
+#CONFIG += console
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += serialport widgets bluetooth
+greaterThan(QT_MAJOR_VERSION, 4): QT += serialport widgets
 
 TARGET = gecko_loader
 TEMPLATE = app
 
-#DEFINES += QT_NO_DEBUG_OUTPUT
-DEFINES += EFM32_LOADER_GUI EFM32LOADER_SERIAL=1 EFM32LOADER_BLE=1
+DEFINES += QT_NO_DEBUG_OUTPUT
+DEFINES += EFM32_LOADER_GUI EFM32LOADER_SERIAL=1 EFM32LOADER_BLE=0
 
 SOURCES += main.cpp\
         mainwindow.cpp \
